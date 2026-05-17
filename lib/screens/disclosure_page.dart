@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/announcement.dart';
 import '../models/stock_item.dart';
 import '../services/sse_service.dart';
+import '../widgets/stock_label.dart';
 import '../services/stock_storage.dart';
 import '../services/szse_service.dart';
 
@@ -32,15 +33,15 @@ class _DisclosurePageState extends State<DisclosurePage> {
   final _sseService = SseService();
   final _szseService = SzseService();
 
-  /// null 表示未选择具体公司，展示全市场最新 10 条。
-  StockItem? _selected;
+  /// null 表示「全部（最新10条）」。
+  String? _selectedCode;
   List<Announcement> _announcements = [];
   bool _loading = false;
   bool _initialLoaded = false;
   String? _error;
   Timer? _refreshTimer;
 
-  bool get _isAllStocks => _selected == null;
+  bool get _isAllStocks => _selectedCode == null;
 
   @override
   void initState() {
@@ -60,9 +61,9 @@ class _DisclosurePageState extends State<DisclosurePage> {
       }
     }
     if (oldWidget.stocks != widget.stocks &&
-        _selected != null &&
-        !widget.stocks.any((s) => s.code == _selected!.code)) {
-      setState(() => _selected = null);
+        _selectedCode != null &&
+        !widget.stocks.any((s) => s.code == _selectedCode)) {
+      setState(() => _selectedCode = null);
       _loadAnnouncements(showLoading: true);
     }
   }
@@ -97,11 +98,11 @@ class _DisclosurePageState extends State<DisclosurePage> {
     try {
       final list = widget.market == MarketType.sse
           ? await _sseService.fetchAnnouncements(
-              securityCode: _selected?.code,
+              securityCode: _selectedCode,
               pageSize: _defaultPageSize,
             )
           : await _szseService.fetchAnnouncements(
-              stockCode: _selected?.code,
+              stockCode: _selectedCode,
               pageSize: _defaultPageSize,
             );
 
@@ -166,30 +167,38 @@ class _DisclosurePageState extends State<DisclosurePage> {
         ),
         Padding(
           padding: const EdgeInsets.all(16),
-          child: DropdownButtonFormField<StockItem?>(
-            key: ValueKey('dropdown_${widget.market.name}_${_selected?.code ?? 'all'}'),
-            initialValue: _selected,
+          child: InputDecorator(
             decoration: InputDecoration(
               labelText: '上市公司',
               border: const OutlineInputBorder(),
-              helperText: _isAllStocks ? '当前显示全市场最新 $_defaultPageSize 条' : null,
+              helperText:
+                  _isAllStocks ? '当前显示全市场最新 $_defaultPageSize 条' : null,
             ),
-            items: [
-              const DropdownMenuItem<StockItem?>(
-                value: null,
-                child: Text('全部（最新10条）'),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String?>(
+                isExpanded: true,
+                value: _selectedCode != null &&
+                        widget.stocks.any((s) => s.code == _selectedCode)
+                    ? _selectedCode
+                    : null,
+                items: [
+                  const DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text('全部（最新10条）'),
+                  ),
+                  ...widget.stocks.map(
+                    (s) => DropdownMenuItem<String?>(
+                      value: s.code,
+                      child: StockLabel(stock: s),
+                    ),
+                  ),
+                ],
+                onChanged: (code) {
+                  setState(() => _selectedCode = code);
+                  _loadAnnouncements(showLoading: true);
+                },
               ),
-              ...widget.stocks.map(
-                (s) => DropdownMenuItem<StockItem?>(
-                  value: s,
-                  child: Text(s.displayLabel),
-                ),
-              ),
-            ],
-            onChanged: (value) {
-              setState(() => _selected = value);
-              _loadAnnouncements(showLoading: true);
-            },
+            ),
           ),
         ),
         if (_loading && !_initialLoaded)
@@ -219,12 +228,16 @@ class _DisclosurePageState extends State<DisclosurePage> {
       );
     }
 
-    if (_initialLoaded && !_loading && _announcements.isEmpty) {
-      return const Center(child: Text('暂无公告'));
+    if (_loading && !_initialLoaded) {
+      return const Center(child: CircularProgressIndicator());
     }
 
-    if (!_initialLoaded && _loading) {
-      return const Center(child: CircularProgressIndicator());
+    if (_announcements.isEmpty) {
+      return Center(
+        child: _loading
+            ? const CircularProgressIndicator()
+            : const Text('暂无公告'),
+      );
     }
 
     return RefreshIndicator(
