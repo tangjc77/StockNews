@@ -10,7 +10,7 @@ void main() {
     await tester.pumpWidget(const StockNewsApp());
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('股票披露'), findsOneWidget);
+    expect(find.text(''), findsOneWidget);
     expect(find.text('沪股通'), findsOneWidget);
     expect(find.text('深股通'), findsOneWidget);
   });

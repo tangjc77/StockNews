@@ -13,7 +13,7 @@ class StockNewsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '股票披露',
+      title: '',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       home: const HomeScreen(),

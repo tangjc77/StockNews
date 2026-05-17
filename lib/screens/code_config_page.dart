@@ -165,85 +165,83 @@ class _CodeConfigPageState extends State<CodeConfigPage> {
             style: theme.textTheme.titleMedium,
           ),
         ),
-        Flexible(
-          fit: FlexFit.loose,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (_isEditing)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          '正在编辑：$_editingCode',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    TextField(
-                      controller: _codeController,
-                      enabled: !_isEditing,
-                      keyboardType: TextInputType.number,
-                      style: theme.textTheme.bodyMedium,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(6),
-                      ],
-                      decoration: const InputDecoration(
-                        labelText: '股票代码',
-                        hintText: '6 位数字',
-                        isDense: true,
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_isEditing)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        '正在编辑：$_editingCode',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _nameController,
-                      style: theme.textTheme.bodyMedium,
-                      decoration: const InputDecoration(
-                        labelText: '公司名称',
-                        isDense: true,
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
+                  TextField(
+                    controller: _codeController,
+                    enabled: !_isEditing,
+                    keyboardType: TextInputType.number,
+                    style: theme.textTheme.bodyMedium,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
+                    decoration: const InputDecoration(
+                      labelText: '股票代码',
+                      hintText: '6 位数字',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    _buildHoldingRadios(),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        if (_isEditing)
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: _cancelEdit,
-                              child: const Text('取消'),
-                            ),
-                          ),
-                        if (_isEditing) const SizedBox(width: 8),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _nameController,
+                    style: theme.textTheme.bodyMedium,
+                    decoration: const InputDecoration(
+                      labelText: '公司名称',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _buildHoldingRadios(),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      if (_isEditing)
                         Expanded(
-                          child: FilledButton.icon(
-                            onPressed: _submit,
-                            icon: Icon(_isEditing ? Icons.save : Icons.add),
-                            label: Text(_isEditing ? '保存修改' : '添加'),
+                          child: OutlinedButton(
+                            onPressed: _cancelEdit,
+                            child: const Text('取消'),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      if (_isEditing) const SizedBox(width: 8),
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: _submit,
+                          icon: Icon(_isEditing ? Icons.save : Icons.add),
+                          label: Text(_isEditing ? '保存修改' : '添加'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

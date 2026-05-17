@@ -56,8 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('股票披露'),
-        centerTitle: true,
+        toolbarHeight: 0,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: !_loaded
           ? const Center(child: CircularProgressIndicator())
@@ -67,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   labels: const ['沪股通', '深股通'],
                   selectedIndex: _marketIndex,
                   onChanged: (index) {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     setState(() => _marketIndex = index);
                     _marketPageController.animateToPage(
                       index,

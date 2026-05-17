@@ -43,6 +43,8 @@ class _MarketPageState extends State<MarketPage> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+
     return Column(
       children: [
         Expanded(
@@ -65,25 +67,27 @@ class _MarketPageState extends State<MarketPage> {
             ],
           ),
         ),
-        NavigationBar(
-          selectedIndex: _bottomIndex,
-          onDestinationSelected: (index) {
-            setState(() => _bottomIndex = index);
-            _onBottomTap(index);
-          },
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.article_outlined),
-              selectedIcon: Icon(Icons.article),
-              label: '披露信息',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.tune_outlined),
-              selectedIcon: Icon(Icons.tune),
-              label: '代码配置',
-            ),
-          ],
-        ),
+        if (!keyboardVisible)
+          NavigationBar(
+            selectedIndex: _bottomIndex,
+            onDestinationSelected: (index) {
+              FocusManager.instance.primaryFocus?.unfocus();
+              setState(() => _bottomIndex = index);
+              _onBottomTap(index);
+            },
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.article_outlined),
+                selectedIcon: Icon(Icons.article),
+                label: '披露信息',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.tune_outlined),
+                selectedIcon: Icon(Icons.tune),
+                label: '代码配置',
+              ),
+            ],
+          ),
       ],
     );
   }
