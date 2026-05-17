@@ -9,8 +9,9 @@ class SseService {
   static const _baseUrl = 'https://query.sse.com.cn';
   static const _staticBase = 'https://static.sse.com.cn';
 
+  /// [securityCode] 为空时返回全市场最新公告（默认近 3 个月）。
   Future<List<Announcement>> fetchAnnouncements({
-    required String securityCode,
+    String? securityCode,
     int pageNo = 1,
     int pageSize = 30,
     DateTime? startDate,
@@ -29,7 +30,7 @@ class SseService {
         'pageHelp.cacheSize': '1',
         'START_DATE': fmt.format(start),
         'END_DATE': fmt.format(end),
-        'SECURITY_CODE': securityCode,
+        'SECURITY_CODE': securityCode ?? '',
         'reportType': 'ALL',
         'stockType': '',
       },
@@ -50,18 +51,42 @@ class SseService {
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final result = data['result'] as List<dynamic>? ??
-        (data['pageHelp'] as Map<String, dynamic>?)?['data'] as List<dynamic>? ??
-        [];
+    final raw = data['result'] ?? (data['pageHelp'] as Map<String, dynamic>?)?['data'];
 
-    return result.map((item) {
-      final map = item as Map<String, dynamic>;
+    return _parseAnnouncementRows(raw, securityCode, limit: pageSize);
+  }
+
+  /// 上交所返回的 result 为 `[[{主公告},...], ...]`，每组取第一条作为主公告。
+  List<Announcement> _parseAnnouncementRows(
+    dynamic raw,
+    String? securityCode, {
+    int? limit,
+  }) {
+    final maps = <Map<String, dynamic>>[];
+
+    if (raw is List) {
+      for (final group in raw) {
+        if (group is List && group.isNotEmpty) {
+          final first = group.first;
+          if (first is Map) {
+            maps.add(Map<String, dynamic>.from(first));
+          }
+        } else if (group is Map) {
+          maps.add(Map<String, dynamic>.from(group));
+        }
+      }
+    }
+
+    final capped = limit != null && maps.length > limit
+        ? maps.sublist(0, limit)
+        : maps;
+
+    return capped.map((map) {
       final path = map['URL'] as String? ?? '';
-      final fullUrl = path.startsWith('http')
-          ? path
-          : '$_staticBase$path';
+      final fullUrl =
+          path.startsWith('http') ? path : '$_staticBase$path';
       return Announcement(
-        code: map['SECURITY_CODE'] as String? ?? securityCode,
+        code: map['SECURITY_CODE'] as String? ?? securityCode ?? '',
         companyName: map['SECURITY_NAME'] as String? ?? '',
         title: map['TITLE'] as String? ?? '',
         date: map['SSEDATE'] as String? ?? '',

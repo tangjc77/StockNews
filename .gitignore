@@ -33,6 +33,9 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# 打包脚本输出
+/script/output/
+
 # Symbolication related
 app.*.symbols
 

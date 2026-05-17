@@ -11,11 +11,13 @@ class MarketPage extends StatefulWidget {
     required this.market,
     required this.stocks,
     required this.onStocksChanged,
+    this.isMarketActive = true,
   });
 
   final MarketType market;
   final List<StockItem> stocks;
   final ValueChanged<List<StockItem>> onStocksChanged;
+  final bool isMarketActive;
 
   @override
   State<MarketPage> createState() => _MarketPageState();
@@ -52,6 +54,8 @@ class _MarketPageState extends State<MarketPage> {
                 key: ValueKey('disclosure_${widget.market.name}'),
                 market: widget.market,
                 stocks: widget.stocks,
+                autoRefresh:
+                    widget.isMarketActive && _bottomIndex == 0,
               ),
               CodeConfigPage(
                 market: widget.market,

@@ -21,7 +21,7 @@ exec "${GEM_BIN}" "\$@"
 EOF
 
 sudo chmod +x /usr/local/bin/pod
-
+Ï
 echo "验证（模拟 Android Studio 的 PATH）..."
 env -i PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin pod --version
 

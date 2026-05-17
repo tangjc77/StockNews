@@ -85,11 +85,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         market: MarketType.sse,
                         stocks: _sseStocks,
                         onStocksChanged: _updateSseStocks,
+                        isMarketActive: _marketIndex == 0,
                       ),
                       MarketPage(
                         market: MarketType.szse,
                         stocks: _szseStocks,
                         onStocksChanged: _updateSzseStocks,
+                        isMarketActive: _marketIndex == 1,
                       ),
                     ],
                   ),

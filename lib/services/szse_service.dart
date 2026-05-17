@@ -10,8 +10,9 @@ class SzseService {
   static const _baseUrl = 'https://www.szse.cn/api/disc/announcement/annList';
   static const _downloadBase = 'https://disc.static.szse.cn/download';
 
+  /// [stockCode] 为空时返回全市场最新公告（默认近 3 个月）。
   Future<List<Announcement>> fetchAnnouncements({
-    required String stockCode,
+    String? stockCode,
     int pageNum = 1,
     int pageSize = 30,
     DateTime? startDate,
@@ -27,7 +28,7 @@ class SzseService {
 
     final body = jsonEncode({
       'seDate': [fmt.format(start), fmt.format(end)],
-      'stock': [stockCode],
+      'stock': stockCode != null && stockCode.isNotEmpty ? [stockCode] : [],
       'channelCode': ['listedNotice_disc'],
       'pageSize': pageSize,
       'pageNum': pageNum,
@@ -63,7 +64,7 @@ class SzseService {
           : publishTime;
 
       return Announcement(
-        code: codes.isNotEmpty ? codes.first.toString() : stockCode,
+        code: codes.isNotEmpty ? codes.first.toString() : stockCode ?? '',
         companyName: names.isNotEmpty ? names.first.toString() : '',
         title: map['title'] as String? ?? '',
         date: date,
