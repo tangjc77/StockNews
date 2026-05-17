@@ -68,27 +68,106 @@ class _MarketPageState extends State<MarketPage> {
           ),
         ),
         if (!keyboardVisible)
-          NavigationBar(
+          _MarketBottomBar(
+            height: 60,
             selectedIndex: _bottomIndex,
-            onDestinationSelected: (index) {
+            onSelected: (index) {
               FocusManager.instance.primaryFocus?.unfocus();
               setState(() => _bottomIndex = index);
               _onBottomTap(index);
             },
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.article_outlined),
-                selectedIcon: Icon(Icons.article),
+            items: const [
+              _BottomNavItem(
+                icon: Icons.article_outlined,
+                selectedIcon: Icons.article,
                 label: '披露信息',
               ),
-              NavigationDestination(
-                icon: Icon(Icons.tune_outlined),
-                selectedIcon: Icon(Icons.tune),
+              _BottomNavItem(
+                icon: Icons.tune_outlined,
+                selectedIcon: Icons.tune,
                 label: '代码配置',
               ),
             ],
           ),
       ],
+    );
+  }
+}
+
+class _BottomNavItem {
+  const _BottomNavItem({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+}
+
+class _MarketBottomBar extends StatelessWidget {
+  const _MarketBottomBar({
+    required this.height,
+    required this.selectedIndex,
+    required this.onSelected,
+    required this.items,
+  });
+
+  final double height;
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
+  final List<_BottomNavItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final navTheme = theme.navigationBarTheme;
+
+    return Material(
+      color: navTheme.backgroundColor ?? scheme.surface,
+      elevation: navTheme.elevation ?? 3,
+      child: SizedBox(
+        height: height,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: List.generate(items.length, (index) {
+            final item = items[index];
+            final selected = index == selectedIndex;
+            final color = selected ? scheme.primary : scheme.onSurfaceVariant;
+            final labelStyle = navTheme.labelTextStyle?.resolve({
+                  if (selected) WidgetState.selected,
+                }) ??
+                TextStyle(
+                  fontSize: 11,
+                  color: color,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                );
+
+            return Expanded(
+              child: InkWell(
+                onTap: () => onSelected(index),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      selected ? item.selectedIcon : item.icon,
+                      size: 20,
+                      color: color,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      item.label,
+                      style: labelStyle.copyWith(fontSize: 11, color: color),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
     );
   }
 }
